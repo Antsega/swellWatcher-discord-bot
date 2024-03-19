@@ -1,0 +1,10 @@
+# vars
+.env
+
+# venv
+venv/
+
+# cache
+bot_commands/__pycache__/
+.cache
+.vscode

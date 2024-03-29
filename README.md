@@ -40,5 +40,11 @@ sudo apt update
 sudo apt install ffmpeg
 ``` 
 
+4) ## Add to server
+
+https://discord.com/developers/applications
+
+OAuth2 tab generate new link to add to server
+
 should be able to run  ```ffmpeg```
 

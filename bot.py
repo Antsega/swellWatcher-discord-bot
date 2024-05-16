@@ -1,9 +1,9 @@
+# bot.py
 import discord
 import os
 from dotenv import load_dotenv
 from discord.ext import commands
 from bot_commands.message_responses import join_voice_channel, leave_voice_channel
-from bot_commands.spotify_commands import SpotifyManager
 from bot_commands.youtube_commands import YouTubeManager
 
 # Load .env file
@@ -17,8 +17,7 @@ intents.message_content = True
 # Set up bot with command prefix
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-# Initialize Managers
-spotify_manager = SpotifyManager()
+# Initialize YouTubeManager
 youtube_manager = YouTubeManager()
 
 # Start log
@@ -26,7 +25,7 @@ youtube_manager = YouTubeManager()
 async def on_ready():
     print(f'We have logged in as {bot.user}')
 
-# Common Inputs --> message_responses
+# Common Inputs -> message_responses
 @bot.command()
 async def join(ctx):
     await join_voice_channel(ctx.message)
@@ -35,60 +34,41 @@ async def join(ctx):
 async def leave_voice(ctx):  # original `leave` renamed to `leave_voice`
     await leave_voice_channel(ctx.message, bot)
 
-# Spotify Commands --> spotify_commands
-@bot.command(name="spot_toptracks")
-async def toptracks(ctx, *, artist: str):
-    ctx.message.content = f"!spot_toptracks {artist}"
-    await spotify_manager.get_artist_top_tracks(ctx.message)
-
-@bot.command(name="spot_showq")
-async def show_queue(ctx):
-    await spotify_manager.show_queue(ctx.message)
-
-@bot.command(name="spot_q")
-async def add_to_queue(ctx, *, track_name: str):
-    await spotify_manager.add_to_queue(ctx.message, track_name)
-
-@bot.command(name="spot_play")
-async def play(ctx):
-    await spotify_manager.play(ctx.message)
-
-@bot.command(name="spot_clear")
-async def clear(ctx):
-    await spotify_manager.clear_queue(ctx.message)
-
-@bot.command(name="spot_autoplay")
-async def autoplay(ctx):
-    await spotify_manager.toggle_autoplay(ctx.message)
-
-@bot.command(name="spot_skip")
-async def skip(ctx):
-    await spotify_manager.skip_track(ctx.message)
-
-# YouTube Commands --> youtube_commands
-@bot.command(name="yt_play")
+# YouTube Commands -> youtube_commands
+@bot.command(name="play")
 async def play_youtube(ctx, *, video_name: str):
-    await youtube_manager.play_youtube(ctx, video_name=video_name)
+    await youtube_manager.play(ctx, video_name=video_name)
+
+@bot.command(name="skip")
+async def skip(ctx):
+    await youtube_manager.skip_track(ctx)
+
+@bot.command(name="clear")
+async def clear(ctx):
+    await youtube_manager.clear_queue(ctx)
+
+@bot.command(name="showq")
+async def show_queue(ctx):
+    await youtube_manager.show_queue(ctx)
+
+@bot.command(name="stop")
+async def stop(ctx):
+    await youtube_manager.stop(ctx)
 
 # Custom help
-@bot.command(name="bothelp") 
+@bot.command(name="bothelp")
 async def show_help(ctx):
     help_message = (
         "**Voice Channel Commands:**\n"
         "`!join` - Join the voice channel.\n"
-        "`!dc`, `!disconnect`, `!leave_voice`, `quit` - Leave the voice channel.\n\n" 
+        "`!dc`, `!disconnect`, `!leave_voice`, `quit` - Leave the voice channel.\n\n"  # updated command and aliases
         
-        "**Spotify Commands (Prefixed with `spot_`):**\n"
-        "`!spot_play` - Play music from the queue or add a track to the queue if something is already playing.\n"
-        "`!spot_skip` - Skip the current track.\n"
-        "`!spot_clear` - Clear the queue.\n"
-        "`!spot_q <track name>` - Add a track to the queue.\n"
-        "`!spot_showq` - Show the current queue.\n"
-        "`!spot_toptracks <artist>` - Show top tracks of the artist.\n"
-        "`!spot_autoplay` - Toggle autoplay of similar tracks.\n"
-        
-        "**YouTube Commands (Prefixed with `yt_`):**\n"
-        "`!yt_play <video name>` - Play a YouTube video by search term.\n"
+        "**YouTube Commands:**\n"
+        "`!play <video name>` - Play a YouTube video by search term.\n"
+        "`!skip` - Skip the current track.\n"
+        "`!clear` - Clear the queue.\n"
+        "`!showq` - Show the current queue.\n"
+        "`!stop` - Stop playback and clear the queue.\n\n"
         
         "`!bothelp` - Show this help message.\n"
     )

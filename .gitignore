@@ -5,6 +5,6 @@
 venv/
 
 # cache
-bot_commands/__pycache__/
+**/__pycache__
 .cache
 .vscode

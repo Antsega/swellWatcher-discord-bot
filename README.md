@@ -12,7 +12,7 @@ activate venv
 
 install dependencies
 
-
+```pip install --upgrade pip```
 ```pip install -r requirements.txt```
 
 3) ## Discord Key <br>

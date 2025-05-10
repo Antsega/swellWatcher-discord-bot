@@ -9,42 +9,30 @@ async def get_youtube_url(track_name):
         'no_warnings': True,
         'extract_flat': False,
         'default_search': 'ytsearch',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'cookiesfrombrowser': ('chrome',),  # Use cookies from Chrome for better access
         'extractor_args': {
             'youtube': {
-                'skip': ['dash', 'hls'],
-                'player_client': ['android', 'web'],
+                'player_client': ['web'],
+                'player_skip': ['js', 'configs', 'webpage'],
             }
         }
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            # First, search for the video
-            search_result = ydl.extract_info(f"ytsearch:{track_name}", download=False)
-            if not search_result or not search_result.get('entries'):
+            # Search and extract in one step
+            info = ydl.extract_info(f"ytsearch:{track_name}", download=False)
+            if not info or not info.get('entries'):
                 return None
             
-            # Get the first result's video ID
-            video_id = search_result['entries'][0]['id']
+            # Get the first result
+            video = info['entries'][0]
             
-            # Now get the actual video info with the ID
-            video_info = ydl.extract_info(video_id, download=False)
-            if not video_info:
-                return None
-                
             # Get the best audio format URL
-            formats = video_info.get('formats', [])
-            
-            # Try to get audio-only format first
+            formats = video.get('formats', [])
             audio_formats = [f for f in formats if f.get('acodec') != 'none' and f.get('vcodec') == 'none']
+            
             if audio_formats:
-                # Sort by audio quality
+                # Sort by audio quality and get the best one
                 audio_formats.sort(key=lambda x: x.get('abr', 0) or 0, reverse=True)
                 return audio_formats[0]['url']
             
